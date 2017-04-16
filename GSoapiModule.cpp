@@ -23,7 +23,6 @@
 #include "GlideslopeMFD.hpp"
 #include "GSoapiModule.hpp"
 
-
 //
 // ==============================================================
 // Pointers to Global variables in Glideslope
