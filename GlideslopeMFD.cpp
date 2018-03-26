@@ -1,7 +1,7 @@
 ﻿
 // ==========================================================================================================
 //  Glideslope 2 Main code
-//  Copyright (c) 2012-2017 Andrew (ADSWNJ) Stokes, Licensed under GNU GPL
+//  Copyright (c) 2012-2018 Andrew (ADSWNJ) Stokes, Licensed under GNU GPL
 //
 //  Designed to support flying of an accurate glide slope for the Orbiter simulator (tested for Orbiter 2010)
 //
@@ -372,9 +372,9 @@ void GlideslopeMFD::Update (HDC hDC) {
   char buf[256];
   bool DispRefs;
   if (!G->steerActive) {
-    Title (hDC, "Glideslope v2.6");
+    Title (hDC, "Glideslope v2.7");
   } else {
-    Title (hDC, "Glideslope v2.6                AUT");
+    Title (hDC, "Glideslope v2.7                AUT");
   }
   double SimT=oapiGetSimTime();
 
@@ -408,9 +408,9 @@ void GlideslopeMFD::Update (HDC hDC) {
     case 1:
       //Draw reference glideslope (altitude)
       if (!G->steerActive) {
-        Title (hDC, "Glideslope v2.6 VSIT");
+        Title (hDC, "Glideslope v2.7 VSIT");
       } else {
-        Title (hDC, "Glideslope v2.6 VSIT           AUT");
+        Title (hDC, "Glideslope v2.7 VSIT           AUT");
       }
       SetTextColor( hDC, YELLOW );
       sprintf(buf,"Alt");
@@ -526,9 +526,9 @@ void GlideslopeMFD::Update (HDC hDC) {
 //
 	case 2: // TAPES OUPUT
       if (!G->steerActive) {
-        Title (hDC, "Glideslope v2.6 TAPE");
+        Title (hDC, "Glideslope v2.7 TAPE");
       } else {
-        Title (hDC, "Glideslope v2.6 TAPE           AUT");
+        Title (hDC, "Glideslope v2.7 TAPE           AUT");
       }
       SelectDefaultFont(hDC,1);
       sprintf(buf,"%s",G->RunwayName[G->runway]);
@@ -548,7 +548,7 @@ void GlideslopeMFD::Update (HDC hDC) {
       //VSpd scale
       VTape(hDC,"VSPD","m/s","ft/s",50,10,1.0/0.3048,G->RefVspd,G->vspd,6*width/8,7*width/8-2);
       //VSpd Ratescale
-      VTape(hDC,"VACC","m/s²","ft/s²",10,2,1.0/0.3048,G->RefVspdRate,G->VspdRate,7*width/8,8*width/8-2);
+      VTape(hDC,"VACC","m/s²","ft/s²",10,2,1.0/0.3048,G->RefVerticalAcc,G->VerticalAcc,7*width/8,8*width/8-2);
       //Energy scale
 //      VTape(hDC,"ENE","J","ftlbf",5e5,1e5,0.7375621,G->RefTE,G->TE,6*width/8,7*width/8-2);
       //Energy loss
@@ -564,9 +564,9 @@ void GlideslopeMFD::Update (HDC hDC) {
 //
     case 3: // Digital Descent Display
       if (!G->steerActive) {
-        Title (hDC, "Glideslope v2.6 DATA");
+        Title (hDC, "Glideslope v2.7 DATA");
       } else {
-        Title (hDC, "Glideslope v2.6 DATA           AUT");
+        Title (hDC, "Glideslope v2.7 DATA           AUT");
       }
 
       SelectDefaultFont(hDC,0);
@@ -676,8 +676,8 @@ void GlideslopeMFD::Update (HDC hDC) {
 
         // VAcc (Delta VSPD) display
 	      l++;
-        SetTextColor( hDC, ((fabs(G->VspdRate)<=2.0 )? GREEN : (fabs(G->VspdRate) > 5.0)? RED : YELLOW));
-	      DisplayEngUnit5(buf," VAcc:  %7.2f%c"," VAcc:  %7.2f%c","","",1.0/0.3048,units,G->VspdRate,0);
+        SetTextColor( hDC, ((fabs(G->VerticalAcc)<=2.0 )? GREEN : (fabs(G->VerticalAcc) > 5.0)? RED : YELLOW));
+	      DisplayEngUnit5(buf," VAcc:  %7.2f%c"," VAcc:  %7.2f%c","","",1.0/0.3048,units,G->VerticalAcc,0);
         TextOut(hDC,5,line(l),buf,strlen(buf));
         SetTextColor( hDC, BLUE );
 
@@ -717,6 +717,8 @@ void GlideslopeMFD::Update (HDC hDC) {
         break;
       }
 
+      //sprintf(oapiDebugString(), "FORCE VEC: %f %f %f", G->ForceVec.x, G->ForceVec.y, G->ForceVec.z);
+
 	    // Vertical Speed (Delta Altitude) display
 	    l++;
       SetTextColor( hDC, ((fabs(G->vspd - G->RefVspd)<= (0.25 * fabs(G->RefVspd)) || fabs(G->vspd - G->RefVspd)< 40.0)|| !DispRefs)? GREEN : (G->vspd < G->RefVspd)? RED : YELLOW);
@@ -731,9 +733,27 @@ void GlideslopeMFD::Update (HDC hDC) {
       }
       TextOut(hDC,mid,line(l),buf,strlen(buf));
 
+      // VAcc guidance
+      l++;
+      SetTextColor(hDC, ((fabs(G->VerticalAcc - G->optVAcc) <= (0.5 * fabs(G->optVAcc))) || (fabs(G->VerticalAcc - G->optVAcc) <= 2.5) || !DispRefs) ? GREEN : (G->VerticalAcc < G->optVAcc) ? RED : YELLOW);
+      DisplayEngUnit5(buf, "VAcc:    %7.3f%c", "VAcc:    %7.3f%c", "", "", 1.0 / 0.3048, units, G->VerticalAcc, 0);
+      TextOut(hDC, 5, line(l), buf, strlen(buf));
+      SetTextColor(hDC, BLUE);
+      DisplayEngUnit6(buf, "   %7.3f%c", "   %7.3f%c", "  m/s²", "  ft/s²", 1.0 / 0.3048, units, G->optVAcc, 0, DispRefs);
+      TextOut(hDC, mid, line(l), buf, strlen(buf));
+
+      // VAccL guidance
+      l++;
+      SetTextColor(hDC, ((fabs(G->VerticalAcc - G->optVAccL) <= (0.5 * fabs(G->optVAccL))) || (fabs(G->VerticalAcc - G->optVAcc) <= 2.5) || !DispRefs) ? GREEN : (G->VerticalAcc < G->optVAccL) ? RED : YELLOW);
+      DisplayEngUnit5(buf, "VAcc-L:  %7.3f%c", "VAcc-L:  %7.3f%c", "", "", 1.0 / 0.3048, units, G->VerticalAcc, 0);
+      TextOut(hDC, 5, line(l), buf, strlen(buf));
+      SetTextColor(hDC, BLUE);
+      DisplayEngUnit6(buf, "   %7.3f%c", "   %7.3f%c", "  m/s²", "  ft/s²", 1.0 / 0.3048, units, G->optVAccL, 0, DispRefs);
+      TextOut(hDC, mid, line(l), buf, strlen(buf));
+
       // Horizontal Speed display
 	    l++;
-      SetTextColor( hDC, ((fabs(G->Groundspeed - G->RefAirspeed)<= (0.25 * G->RefAirspeed))|| !DispRefs)? GREEN : (G->Groundspeed > G->RefAirspeed)? RED : YELLOW);
+      SetTextColor( hDC, ((fabs(G->Groundspeed - G->RefAirspeed)<= (0.25 * G->RefAirspeed))|| fabs(G->Groundspeed - G->RefAirspeed) <= 2.5 ||!DispRefs)? GREEN : (G->Groundspeed > G->RefAirspeed)? RED : YELLOW);
       if (G->Groundspeed < 0.05) SetTextColor(hDC, GREEN);
       DisplayEngUnit5(buf,"HSpd:    %7.3f%c","HSpd:    %7.3f%c","","",1.0/0.3048,units,G->Groundspeed,0);
       TextOut(hDC,5,line(l),buf,strlen(buf));
@@ -741,6 +761,16 @@ void GlideslopeMFD::Update (HDC hDC) {
 
 	    DisplayEngUnit6(buf,"   %7.3f%c","   %7.3f%c","  m/s","  ft/s",1.0/0.3048,units,G->RefAirspeed, 0, DispRefs);
       TextOut(hDC,mid,line(l),buf,strlen(buf));
+
+      // HAcc guidance
+      l++;
+      SetTextColor(hDC, ((fabs(G->GroundAcc - G->optHAcc) <= (0.5 * fabs(G->optHAcc))) || (fabs(G->GroundAcc - G->optHAcc) < 2.5) || !DispRefs) ? GREEN : (G->GroundAcc < G->optHAcc) ? RED : YELLOW);
+      DisplayEngUnit5(buf, "HAcc:    %7.3f%c", "HAcc:    %7.3f%c", "", "", 1.0 / 0.3048, units, G->GroundAcc, 0);
+      TextOut(hDC, 5, line(l), buf, strlen(buf));
+      SetTextColor(hDC, BLUE);
+      DisplayEngUnit6(buf, "   %7.3f%c", "   %7.3f%c", "  m/s²", "  ft/s²", 1.0 / 0.3048, units, G->optHAcc, 0, DispRefs);
+      TextOut(hDC, mid, line(l), buf, strlen(buf));
+
 
       // Thrust indicators
 	    l++;
@@ -780,7 +810,7 @@ void GlideslopeMFD::Update (HDC hDC) {
 	    DisplayEngUnit6(buf," %9.3f%c"," %9.3f%c","  N","  lbf",1.0/4.448222,units,G->hvrThrP * G->maxHvrThr, 0, DispRefs);
 	    TextOut(hDC,mid,line(l),buf,strlen(buf));
 
-      l++; l++;
+      l++;
       {
         double maxPYRerr = fabs(G->alphaErr*RAD2DEG);
         if (fabs(G->betaErr*RAD2DEG) > maxPYRerr) maxPYRerr = fabs(G->betaErr*RAD2DEG);
@@ -798,7 +828,7 @@ void GlideslopeMFD::Update (HDC hDC) {
       SetTextColor( hDC, (fabs(G->gammaErr*RAD2DEG)<= 1.1)? GREEN : (fabs(G->gammaErr*RAD2DEG) > 10.1)? RED : YELLOW );
 	    DisplayEngUnit4(buf,"%4.2f%c",G->gammaErr*RAD2DEG,'°',0);
       TextOut(hDC,col3,line(l),buf,strlen(buf));
-      l++; l++;
+      l++; 
 
       // Command area: gear, retro, hover warnings, countdown timers
       {
@@ -861,12 +891,10 @@ void GlideslopeMFD::Update (HDC hDC) {
           char rmodestr[4][5] = {"INAC", "ARMD", "RTRO", "PLND"};
           char hmodestr[6][5] = {"INAC","POPA","XBRN","ARMD","DSND","AHLD"};
           SetTextColor( hDC, GREEN);
-          l++;
           sprintf(buf, "AP Mode: R=%s H=%s", rmodestr[G->VacLandRMode],hmodestr[G->VacLandHMode]);
           TextOut(hDC,5,line(l),buf,strlen(buf));
           l++;
         } else {
-          l++;
           SetTextColor(hDC, RED);
           sprintf(buf, ">> AUT not enabled <<");
           TextOut(hDC, 5, line(l), buf, strlen(buf));
@@ -880,9 +908,9 @@ void GlideslopeMFD::Update (HDC hDC) {
 //
     case 4: // Horizontal Status
       if (!G->steerActive) {
-        Title (hDC, "Glideslope v2.6 HSIT");
+        Title (hDC, "Glideslope v2.7 HSIT");
       } else {
-        Title (hDC, "Glideslope v2.6 HSIT           AUT");
+        Title (hDC, "Glideslope v2.7 HSIT           AUT");
       }
 
       SelectDefaultFont(hDC,1);
@@ -1060,14 +1088,14 @@ void GlideslopeMFD::Update (HDC hDC) {
 //
     case 5: // Diagnostics Page
       if (!G->steerActive) {
-        Title (hDC, "Glideslope v2.6 DIAG");
+        Title (hDC, "Glideslope v2.7 DIAG");
       } else {
-        Title (hDC, "Glideslope v2.6 DIAG            AUT");
+        Title (hDC, "Glideslope v2.7 DIAG            AUT");
       }
       SetTextColor( hDC, WHITE );
 	    l=1;
 	    sprintf(buf,"%s %+.3f %+.3f",G->BaseName[G->RunwayBase[G->runway]], G->BaseLL[G->RunwayBase[G->runway]][1],G->BaseLL[G->RunwayBase[G->runway]][0]);
-      TextOut(hDC,5,line(l),"v2.6",4);
+      TextOut(hDC,5,line(l),"v2.7",4);
 	    l++;
       TextOut(hDC,5,line(l),buf,strlen(buf));
 	    l++;
@@ -1156,7 +1184,7 @@ void GlideslopeMFD::Update (HDC hDC) {
     case 6: // Deorbit parameters page
       {
         if (!G->steerActive) {
-          Title (hDC, "Glideslope v2.6 DEORBIT");
+          Title (hDC, "Glideslope v2.7 DEORBIT");
         }
 
         // SelectDefaultFont(hDC,1);
@@ -2042,7 +2070,11 @@ void GlideslopeMFD::LoadConfig () {
 	    G->BaseLL[G->BaseCount][0] = tokf[1];
 	    G->BaseLL[G->BaseCount][1] = tokf[0];
       OBJHANDLE hPlanet = oapiGetGbodyByName(G->BasePlanet[G->BaseCount]);
+#ifdef ORBITER2016
       G->BaseAlt[G->BaseCount] = oapiSurfaceElevation(hPlanet, G->BaseLL[G->BaseCount][1]*PI/180.0, G->BaseLL[G->BaseCount][0]*PI/180.0);
+#else
+      G->BaseAlt[G->BaseCount] = 0.0;
+#endif
       G->BaseMinRwy[G->BaseCount] = -1;
       G->BaseMaxRwy[G->BaseCount] = -1;
 	    fprintf(GSCFGPL,"BASE LOADED: %s (on %s) Lon:%.3f Lat:%.3f Alt:%.3f\n", G->BaseName[G->BaseCount],G->BasePlanet[G->BaseCount],G->BaseLL[G->BaseCount][1],G->BaseLL[G->BaseCount][0], G->BaseAlt[G->BaseCount]);

@@ -3,7 +3,7 @@
 //
 // Purpose ... factor floating point numbers into engineering format (kilo, mega,etc.)
 //
-// (c) Andrew Stokes (ADSWNJ) 2012-2017
+// (c) Andrew Stokes (ADSWNJ) 2012-2018
 //
 // All rights reserved
 //

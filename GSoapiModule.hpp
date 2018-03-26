@@ -5,7 +5,7 @@
 // (The Glideslope class is ephemeral ... it gets destroyed and reinstantiated each time you change view, etc, so persist the core into this class)
 //
 //
-// (c) Andrew Stokes (ADSWNJ) 2012-2017
+// (c) Andrew Stokes (ADSWNJ) 2012-2018
 //
 // All rights reserved
 //

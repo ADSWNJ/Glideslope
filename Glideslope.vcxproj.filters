@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="DisplayEngUnitFunctions.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GlideslopeCore.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GlideslopeMFD.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GSmfdButtons.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GSmiscFunctions.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GSoapiModule.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ParseFunctions.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DisplayEngUnitFunctions.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GlideslopeCore.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GSmfdButtons.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GSmiscFunctions.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MFDButtonPage.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GlideslopeMFD.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GlideslopeExports.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ParseFunctions.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GSoapiModule.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{6d54ae75-a47a-474e-a0c4-172205ea2d63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{a064a434-8cd0-45f8-b3a5-425f330b735f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{ca895149-fa09-4913-80a8-5bcc3dc125ad}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Glideslope.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

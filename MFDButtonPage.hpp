@@ -199,7 +199,7 @@ template <class MFDClass>
 MFDButtonPage<MFDClass>::~MFDButtonPage() {}
 
 template <class MFDClass>
-void MFDButtonPage<MFDClass>::SwitchPage( MFDClass * mfdInstance, int page = -1 )  const
+void MFDButtonPage<MFDClass>::SwitchPage( MFDClass * mfdInstance, int page )  const
 {
     if (page == -1) page = (m_i++); // e.g. use SwitchPage(mfd) to increment page, and SwitchPage(mfd,2) to select specific page 2. 
     m_i = (page) % m_pages.size(); // increment index, but not beyond the size

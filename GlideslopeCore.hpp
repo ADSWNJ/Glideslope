@@ -5,7 +5,7 @@
 // (The Glideslope class is ephemeral ... it gets destroyed and reinstantiated each time you change view, etc, so persist the core into this class)
 //
 //
-// (c) Andrew Stokes (ADSWNJ) 2012-2017
+// (c) Andrew Stokes (ADSWNJ) 2012-2018
 //
 // All rights reserved
 //
@@ -17,10 +17,12 @@
 #include "GSMiscFunctions.hpp"
 #include "MFDButtonPage.hpp"
 #include "GSmfdButtons.hpp"
+#include "MMExt2_Advanced.hpp"
 #include "GlideslopeExports.hpp"
-#include "EnjoLib/ModuleMessagingExtPut.hpp"
-#include "EnjoLib/ModuleMessagingExt.hpp"
 #include "BaseSyncExports.hpp"
+
+#define ORBITER2016                             // Comment this out for ORBITER2010 compilations. 
+
 
 #ifndef _GS_CORE_CLASS
 #define _GS_CORE_CLASS
@@ -28,12 +30,12 @@
 const double DEG2RAD   = RAD;      ///< factor to map degrees to radians
 const double RAD2DEG   = DEG;      ///< factor to map radians to degrees
 
-class GlideslopeCore : public EnjoLib::ModuleMessagingExtPut {
+class GlideslopeCore {
   public:
-
-  const char* ModuleMessagingGetModuleName() const { return "GS2"; }
+  GlideslopeCore();
   struct GlideslopeExportTgtStruct base;
 
+  OBJHANDLE voh;
   VESSEL *vessel;
   VESSELSTATUS2 vs2;
   //Tracking variables
@@ -213,12 +215,14 @@ class GlideslopeCore : public EnjoLib::ModuleMessagingExtPut {
 
   double M2;
   VECTOR3 AirspeedVec,InertialVel;
-  double Lat,Lon,FullH,Altitude,AtmDensity, vspd,Groundspeed,Bearing,Mach,Airspeed,AirspeedRate,GroundspeedRate,RefAirspeedRate,DynPres,HeatFlux,InertialSpd,DelAz,alpha,beta,gamma;
+  double Lat,Lon,FullH,Altitude, LclAltitude,AtmDensity, vspd,Groundspeed,Bearing,Mach,Airspeed,AirspeedRate,GroundAcc,RefAirspeedRate,DynPres,HeatFlux,InertialSpd,DelAz,alpha,beta,gamma;
   double simDT,simMinDT,lastSimMinDT,lastSimT,lastTE,lastRefTE,lastRefVspd,lastVspd,lastGroundspeed,lastBearing,lastAirspeed,lastRefAltitude,lastRefAirspeed,lastAltitude,lastDelAz,nextMajorCycle;
-  double PE,KE,TE,RefPE,RefKE,RefTE,RefVspdRate,RefTERate,BearingRate,VspdRate,TERate,DelAzRate;
+  double PE,KE,TE,RefPE,RefKE,RefTE,RefVerticalAcc,RefTERate,BearingRate,VerticalAcc,TERate,DelAzRate;
   double RefVspd,Refalpha,RefAirspeed,RefAltitude;
   double lastAlpha,lastBeta,lastGamma;
   double lastXrng, lastZrng, xrngRate, zrngRate;
+  double optVAccL, optVAcc, optHAcc;
+  VECTOR3 ForceVec;
 
   int simMinDTctr;
   bool simMinDTpopulated;
@@ -331,5 +335,8 @@ class GlideslopeCore : public EnjoLib::ModuleMessagingExtPut {
   bool PlndTog;
   bool VacLandCalculated;
   double nextVacCalc;
+
+  private:
+    MMExt2::Advanced mma;
 };
 #endif // _GS_CORE_CLASS

@@ -1,6 +1,6 @@
 // ==========================================================================================================
 //  Glideslope 2 Orbiter Interface
-//  Copyright (c) 2012-2017 Andrew (ADSWNJ) Stokes, Licensed under GNU LGPL
+//  Copyright (c) 2012-2018 Andrew (ADSWNJ) Stokes, Licensed under GNU LGPL
 //
 //  Designed to support flying of an accurate glide slope for the Orbiter simulator (tested for Orbiter 2010)
 //
@@ -40,7 +40,7 @@ extern int g_MFDmode;
 //
 
 static char *name = "Glideslope";
-static char *verdetail = "v2.6";
+static char *verdetail = "v2.7";
 static char *verdate = __DATE__;
 
 

@@ -3,7 +3,7 @@
 //
 // Purpose ... tokenize strings, pull out floats, deal with quoted strings, etc
 //
-// (c) Andrew Stokes (ADSWNJ) 2012-2017
+// (c) Andrew Stokes (ADSWNJ) 2012-2018
 //
 // All rights reserved
 //

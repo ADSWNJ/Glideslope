@@ -5,7 +5,7 @@
 // (The Glideslope class is ephemeral ... it gets destroyed and reinstantiated each time you change view, etc, so persist the core into this class)
 //
 //
-// (c) Andrew Stokes (ADSWNJ) 2012-2017
+// (c) Andrew Stokes (ADSWNJ) 2012-2018
 //
 // All rights reserved
 //
@@ -14,7 +14,7 @@
 #include <assert.h>
 #include "GlideslopeCore.hpp"
 
-
+GlideslopeCore::GlideslopeCore() : mma("GS2") {}
 
 void GlideslopeCore::calcRunway() {
 
@@ -39,7 +39,7 @@ void GlideslopeCore::calcRunway() {
   double checkant = base.ant * 180.0 / PI;
   base.alt = RefSlope[0][3] / 1000.0;
 
-  bool check = ModMsgPutByRef("GlideslopeTarget",2,base);                   // Put our structure into MMExt
+  bool check = mma.PutMMStruct("GlideslopeTarget",&base);                   // Put our structure into MMExt
 
   double COG_elev = vessel->GetCOG_elev();                                  // We land when the Center of Gravity is at this value above the runway!
 // Calculate base position in XYZ and LLR
@@ -109,8 +109,6 @@ void GlideslopeCore::calcRunway() {
  // OBJHANDLE hPlanet = oapiGetGbodyByName(G->BasePlanet[G->BaseCount]);
  // G->BaseAlt[G->BaseCount] = oapiSurfaceElevation(hPlanet, G->BaseLL[G->BaseCount][1] * PI / 180.0, G->BaseLL[G->BaseCount][0] * PI / 180.0);
 
-  ModMsgPutByRef("GlideslopeTarget",1,base);                                // Put our structure into MMExt - e.g. for BaseSync
-
   //  VECTOR3 checklla_tdp = xyz_to_lladeg(xyz_tdp,re);                         // Check coordinates 
 
 // Calculate WP2 XYZ, and NRE/AR relative to far end
@@ -171,7 +169,7 @@ RunwayData[runway][6], RunwayData[runway][7]
   leg=1;
   maxleg=1;
 
-
+  optVAccL = optVAcc = optHAcc = 0.0;
 
 }
 
@@ -755,6 +753,32 @@ void GlideslopeCore::vacLand(double simt) {
   //
   // Retro Controls
   //
+  if (Altitude < 1.0 &&  abs(vspd)<0.01) {
+    VacLandRMode = VACLANDR_INAC;
+    VacLandHMode = VACLANDH_INAC;
+    if (steerActive) {
+      vessel->SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_ATT_FORWARD, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_ATT_BACK, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_ATT_LEFT, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_ATT_RIGHT, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_ATT_UP, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_ATT_DOWN, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_MAIN, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_RETRO, 0.0);
+      vessel->SetThrusterGroupLevel(THGROUP_HOVER, 0.0);
+    }
+    vacLanded = true;
+    steerActive = false;
+  } else {
+    if (steerActive) vacLanded = false;
+  }
+
   switch (VacLandRMode) {
   case VACLANDR_INAC:               // Inactive (> 3 mins to TOD, or landed)
     if (TTod+Tp > simt+300.0) {                                                                    // Too far away ... go quiet for now
@@ -825,24 +849,26 @@ void GlideslopeCore::vacLand(double simt) {
       hvrFloor = tdFullH - 5.0;
     }
 
-    if (Altitude < 5.0 && VacLandHMode == VACLANDH_DSND && abs(vspd)<0.01) {
+    if (Altitude < 1.0 && VacLandHMode == VACLANDH_DSND && abs(vspd)<0.01) {
       VacLandRMode = VACLANDR_INAC;
       VacLandHMode = VACLANDH_INAC;
-      vessel->SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_ATT_FORWARD, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_ATT_BACK, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_ATT_LEFT, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_ATT_RIGHT, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_ATT_UP, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_ATT_DOWN, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_MAIN, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_RETRO, 0.0);
-      vessel->SetThrusterGroupLevel(THGROUP_HOVER, 0.0);
+      if (steerActive) {
+        vessel->SetThrusterGroupLevel(THGROUP_ATT_PITCHUP, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_ATT_FORWARD, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_ATT_BACK, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_ATT_LEFT, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_ATT_RIGHT, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_ATT_UP, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_ATT_DOWN, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_MAIN, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_RETRO, 0.0);
+        vessel->SetThrusterGroupLevel(THGROUP_HOVER, 0.0);
+      }
       vacLanded = true;
       steerActive = false;
       break;
@@ -857,8 +883,10 @@ void GlideslopeCore::vacLand(double simt) {
       alignLockout = false;
     } else {
       alignLockout = true;
-      if (abs(xrng)>0.5 || abs(zrng)>0.5 || abs(xrngRate)>0.1 || abs(zrngRate)>0.1)
-        thrust_sc(simt, xrng, xrngRate, zrng, zrngRate);    
+      if (steerActive) {
+        if (abs(xrng) > 0.5 || abs(zrng) > 0.5 || abs(xrngRate) > 0.1 || abs(zrngRate) > 0.1)
+          thrust_sc(simt, xrng, xrngRate, zrng, zrngRate);
+      }
     }
     break;
   default:
@@ -1101,9 +1129,22 @@ void GlideslopeCore::MinorCycle(double simt, double simdt) {
   xyz_sc=llr_to_xyz(llr_sc);							    	// llr_sc is Lat/Long/Radius of spacecraft. Convert to xyz coords.
   M_sc=xyz_to_matrix(xyz_sc);							  	  // create spacecraft transform matrix around our current position
   Altitude= FullH - tdFullH;
+  OBJHANDLE hPlanet = oapiGetGbodyByName(BasePlanet[RunwayBase[runway]]);
+  double LclElevation = (hPlanet ? oapiGetSize(hPlanet) : 0.0);
+
+#ifdef ORBITER2016
+  if (LclElevation) LclElevation += oapiSurfaceElevation(hPlanet, Lon, Lat);
+#endif
+  LclAltitude = FullH - LclElevation;
+
   AtmDensity = vessel->GetAtmDensity();
 
+  vessel->GetForceVector(ForceVec);
+#ifdef ORBITER2016
+  vessel->GetAirspeedVector(FRAME_HORIZON,AirspeedVec);
+#else
   vessel->GetHorizonAirspeedVector(AirspeedVec);
+#endif
   vspd=AirspeedVec.y;
 
   Groundspeed=sqrt(AirspeedVec.x*AirspeedVec.x+AirspeedVec.z*AirspeedVec.z);
@@ -1231,17 +1272,17 @@ void GlideslopeCore::MajorCycle(double simt) {
   RefKE=0.5 * M2 * RefAirspeed * RefAirspeed;
   RefTE=RefPE+RefKE;
 
-  GroundspeedRate=(Groundspeed-lastGroundspeed)/(simt-lastSimT);
+  GroundAcc=(Groundspeed-lastGroundspeed)/(simt-lastSimT);
   AirspeedRate=(Airspeed-lastAirspeed)/(simt-lastSimT);
   RefAirspeedRate=(RefAirspeed-lastRefAirspeed)/(simt-lastSimT);
   RefVspd=(RefAltitude-lastRefAltitude)/(simt-lastSimT);
-  RefVspdRate=(RefVspd-lastRefVspd)/(simt-lastSimT);
+  RefVerticalAcc=(RefVspd-lastRefVspd)/(simt-lastSimT);
   RefTERate=(RefTE-lastRefTE)/(simt-lastSimT);
 
   if (okVac) {
     RefAirspeedRate=(RefSlope[RangeSeg+1][0] - RefSlope[RangeSeg][0]) / (RefTime[RangeSeg+1] - RefTime[RangeSeg]);
     RefVspd=linterp(RefTime[RangeSeg],RefSlope[RangeSeg][4],RefTime[RangeSeg+1],RefSlope[RangeSeg+1][4],simt, true);
-    RefVspdRate=(RefSlope[RangeSeg][4] - RefSlope[RangeSeg+1][4]) / (RefTime[RangeSeg+1] - RefTime[RangeSeg]);
+    RefVerticalAcc=(RefSlope[RangeSeg][4] - RefSlope[RangeSeg+1][4]) / (RefTime[RangeSeg+1] - RefTime[RangeSeg]);
   }
 
   if (abs(Bearing-lastBearing) <= PI) {
@@ -1253,7 +1294,28 @@ void GlideslopeCore::MajorCycle(double simt) {
       BearingRate=((2*PI) + Bearing-lastBearing)/(simt-lastSimT);
     }
   }
-  VspdRate=(vspd-lastVspd)/(simt-lastSimT);
+  VerticalAcc=(vspd-lastVspd)/(simt-lastSimT);
+
+  if (Altitude > 1.0) {
+    optVAcc = (vspd * vspd) / (2.0 * Altitude);
+    if (optVAcc * vspd * Altitude > 0.0) optVAcc = -optVAcc;
+  } else {
+    optVAcc = 0.0;
+  }
+  if (LclAltitude > 1.0) {
+    optVAccL = (vspd * vspd) / (2.0 * LclAltitude);
+    if (optVAccL * vspd * LclAltitude > 0.0) optVAccL = -optVAccL;
+  } else {
+    optVAcc = 0.0;
+  }
+  if (range > 1.0) {
+    optHAcc =-(Groundspeed * Groundspeed) / (2.0 * range);
+    if (optHAcc * -Groundspeed * range < 0.0) optHAcc = -optHAcc;
+  } else {
+    optHAcc = 0.0;
+  }
+
+
   TERate=(TE-lastTE)/(simt-lastSimT);
   DelAzRate=(DelAz-lastDelAz)/(simt-lastSimT); 
   lastSimT=simt;
@@ -1327,11 +1389,11 @@ void GlideslopeCore::DeoBurn(double simt) {
   double cyc_left = 0.0;
 
   if (!BaseSyncConnected) {
-    bool BS_1 = EnjoLib::ModuleMessagingExt().ModMsgGetByRef("BaseSyncMFD", "BaseSyncTarget", 2, &BS_trgt, vessel);
-    bool BS_2 = EnjoLib::ModuleMessagingExt().ModMsgGetByRef("BaseSyncMFD", "BaseSyncMode", 1, &BS_mode, vessel);
-    bool BS_3 = EnjoLib::ModuleMessagingExt().ModMsgGetByRef("BaseSyncMFD", "BaseSyncSolution", 2, &BS_sol, vessel);
-    bool BS_4 = EnjoLib::ModuleMessagingExt().ModMsgGetByRef("BaseSyncMFD", "BaseSyncDeorbit", 4, &BS_deo, vessel);
-    bool BS_5 = EnjoLib::ModuleMessagingExt().ModMsgGetByRef("BaseSyncMFD", "BaseSyncBurn", 1, &BS_burn, vessel);
+    bool BS_1 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncTarget", &BS_trgt,  BASESYNC_EXPORT_TGT_VER, sizeof(BaseSyncExportTgtStruct), voh);
+    bool BS_2 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncMode", &BS_mode, BASESYNC_EXPORT_MODE_VER, sizeof(BaseSyncExportModeStruct), voh);
+    bool BS_3 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncSolution", &BS_sol, BASESYNC_EXPORT_SOL_VER, sizeof(BaseSyncExportSolStruct), voh);
+    bool BS_4 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncDeorbit", &BS_deo, BASESYNC_EXPORT_DEO_VER, sizeof(BaseSyncExportDeorbitStruct), voh);
+    bool BS_5 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncBurn", &BS_burn, BASESYNC_EXPORT_BURN_VER, sizeof(BaseSyncExportBurnStruct), voh);
     if (BS_1 && BS_2 && BS_3 && BS_4 && BS_5) BaseSyncConnected = true;
   }
   if (!BaseSyncConnected) return;
@@ -1885,6 +1947,7 @@ while (TrackD[i-1] > TrackD[i] && i > 1) { i--; };
 
 void GlideslopeCore::reset(VESSEL *v) {
   vessel=v;
+  voh = vessel->GetHandle();
   runway=0;
   DeorbitActive = false;
   DeorbitExecute = false;

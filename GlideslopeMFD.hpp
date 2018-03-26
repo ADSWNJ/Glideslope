@@ -3,7 +3,7 @@
 //
 // Purpose ... class definitions and defined constants for Glideslope
 //
-// (c) Andrew Stokes (ADSWNJ) 2012-2017
+// (c) Andrew Stokes (ADSWNJ) 2012-2018
 //
 // All rights reserved
 //

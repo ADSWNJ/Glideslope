@@ -4,7 +4,7 @@
 //
 // Purpose ... work on matrices and vectors, linear interpolation, etc
 //
-// (c) Andrew Stokes (ADSWNJ) 2012-2017
+// (c) Andrew Stokes (ADSWNJ) 2012-2018
 //
 // All rights reserved
 //

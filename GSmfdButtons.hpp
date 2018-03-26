@@ -3,7 +3,7 @@
 //
 // Purpose ... sets up the menus and supports the context page switching (main, config, deorbit menus)
 //
-// (c) Andrew Stokes (ADSWNJ) 2012-2017
+// (c) Andrew Stokes (ADSWNJ) 2012-2018
 //
 // All rights reserved
 //

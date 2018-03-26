@@ -3,7 +3,7 @@
 //
 // Purpose ... present target base data to other MFDs
 //
-// (c) Andrew Stokes (ADSWNJ) 2016
+// (c) Andrew Stokes (ADSWNJ) 2012-2018
 //
 // All rights reserved
 //
@@ -12,8 +12,7 @@
 #ifndef __GLIDESLOPEEXPORTS_H
 #define __GLIDESLOPEEXPORTS_H
 
-#include "EnjoLib\ModuleMessagingExtBase.hpp"
-#include "EnjoLib\ModuleMessagingExtPut.hpp"
+#include "MMExt2_Advanced.hpp"
 
 //
 // This defines the Target Base structure for export via ModuleMessagingMFD:
@@ -34,8 +33,9 @@
 
 #pragma pack(push)
 #pragma pack(8)
-struct GlideslopeExportTgtStruct: public EnjoLib::ModuleMessagingExtBase {	// Target Data
-	GlideslopeExportTgtStruct():EnjoLib::ModuleMessagingExtBase(2,sizeof(GlideslopeExportTgtStruct)) {};
+#define GLIDESLOPE_EXPORT_TGT_VER 2
+struct GlideslopeExportTgtStruct: public MMExt2::MMStruct {	// Target Data
+	GlideslopeExportTgtStruct():MMExt2::MMStruct(GLIDESLOPE_EXPORT_TGT_VER,sizeof(GlideslopeExportTgtStruct)) {};
 	char	ref[32];			// Reference planet or moon
 	char	name[32];		    // Current target base
 	double	lat;				// Target latitude (radians)
