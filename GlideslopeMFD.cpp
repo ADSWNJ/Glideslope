@@ -742,14 +742,6 @@ void GlideslopeMFD::Update (HDC hDC) {
       DisplayEngUnit6(buf, "   %7.3f%c", "   %7.3f%c", "  m/s²", "  ft/s²", 1.0 / 0.3048, units, G->optVAcc, 0, DispRefs);
       TextOut(hDC, mid, line(l), buf, strlen(buf));
 
-      // VAccL guidance
-      l++;
-      SetTextColor(hDC, ((fabs(G->VerticalAcc - G->optVAccL) <= (0.5 * fabs(G->optVAccL))) || (fabs(G->VerticalAcc - G->optVAcc) <= 2.5) || !DispRefs) ? GREEN : (G->VerticalAcc < G->optVAccL) ? RED : YELLOW);
-      DisplayEngUnit5(buf, "VAcc-L:  %7.3f%c", "VAcc-L:  %7.3f%c", "", "", 1.0 / 0.3048, units, G->VerticalAcc, 0);
-      TextOut(hDC, 5, line(l), buf, strlen(buf));
-      SetTextColor(hDC, BLUE);
-      DisplayEngUnit6(buf, "   %7.3f%c", "   %7.3f%c", "  m/s²", "  ft/s²", 1.0 / 0.3048, units, G->optVAccL, 0, DispRefs);
-      TextOut(hDC, mid, line(l), buf, strlen(buf));
 
       // Horizontal Speed display
 	    l++;
