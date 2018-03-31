@@ -21,8 +21,6 @@
 #include "GlideslopeExports.hpp"
 #include "BaseSyncExports.hpp"
 
-#define ORBITER2016                             // Comment this out for ORBITER2010 compilations. 
-
 
 #ifndef _GS_CORE_CLASS
 #define _GS_CORE_CLASS

@@ -65,10 +65,21 @@
     <Filter Include="Header">
       <UniqueIdentifier>{ca895149-fa09-4913-80a8-5bcc3dc125ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Docs">
+      <UniqueIdentifier>{3b4cc46a-e917-48d9-b303-52d374781349}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Glideslope.rc">
       <Filter>Resource</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Glideslope MFD.pdf">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="Glideslope MFD.docx">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
 </Project>

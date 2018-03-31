@@ -1132,21 +1132,21 @@ void GlideslopeCore::MinorCycle(double simt, double simdt) {
   OBJHANDLE hPlanet = oapiGetGbodyByName(BasePlanet[RunwayBase[runway]]);
   double LclElevation = (hPlanet ? oapiGetSize(hPlanet) : 0.0);
 
-#ifdef ORBITER2016
+#if ORBITER_VERSION == 2016
   if (LclElevation) LclElevation += oapiSurfaceElevation(hPlanet, Lon, Lat);
 #endif
+
   LclAltitude = FullH - LclElevation;
-
   AtmDensity = vessel->GetAtmDensity();
-
   vessel->GetForceVector(ForceVec);
-#ifdef ORBITER2016
+
+#if ORBITER_VERSION == 2016
   vessel->GetAirspeedVector(FRAME_HORIZON,AirspeedVec);
 #else
   vessel->GetHorizonAirspeedVector(AirspeedVec);
 #endif
-  vspd=AirspeedVec.y;
 
+  vspd=AirspeedVec.y;
   Groundspeed=sqrt(AirspeedVec.x*AirspeedVec.x+AirspeedVec.z*AirspeedVec.z);
   if (vs2.status==0) { // status 0 is in flight, 1 is landed
     Bearing=atan2(AirspeedVec.x,AirspeedVec.z);

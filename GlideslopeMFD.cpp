@@ -2062,7 +2062,7 @@ void GlideslopeMFD::LoadConfig () {
 	    G->BaseLL[G->BaseCount][0] = tokf[1];
 	    G->BaseLL[G->BaseCount][1] = tokf[0];
       OBJHANDLE hPlanet = oapiGetGbodyByName(G->BasePlanet[G->BaseCount]);
-#ifdef ORBITER2016
+#if ORBITER_VERSION == 2016
       G->BaseAlt[G->BaseCount] = oapiSurfaceElevation(hPlanet, G->BaseLL[G->BaseCount][1]*PI/180.0, G->BaseLL[G->BaseCount][0]*PI/180.0);
 #else
       G->BaseAlt[G->BaseCount] = 0.0;
