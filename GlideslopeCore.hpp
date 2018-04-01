@@ -333,8 +333,11 @@ class GlideslopeCore {
   bool PlndTog;
   bool VacLandCalculated;
   double nextVacCalc;
+  
+  bool mm_good;
 
   private:
     MMExt2::Advanced mma;
+
 };
 #endif // _GS_CORE_CLASS

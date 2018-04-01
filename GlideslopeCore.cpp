@@ -12,9 +12,14 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <string>
 #include "GlideslopeCore.hpp"
 
-GlideslopeCore::GlideslopeCore() : mma("GS2") {}
+GlideslopeCore::GlideslopeCore() : mma("GS2") {
+  string ver;
+  mma.GetVersion(&ver);
+  mm_good = (ver != "");
+}
 
 void GlideslopeCore::calcRunway() {
 
@@ -39,7 +44,8 @@ void GlideslopeCore::calcRunway() {
   double checkant = base.ant * 180.0 / PI;
   base.alt = RefSlope[0][3] / 1000.0;
 
-  bool check = mma.PutMMStruct("GlideslopeTarget",&base);                   // Put our structure into MMExt
+  bool check = false;
+  if (mm_good) check = mma.PutMMStruct("GlideslopeTarget", &base);          // Put our structure into MMExt
 
   double COG_elev = vessel->GetCOG_elev();                                  // We land when the Center of Gravity is at this value above the runway!
 // Calculate base position in XYZ and LLR
@@ -1389,11 +1395,18 @@ void GlideslopeCore::DeoBurn(double simt) {
   double cyc_left = 0.0;
 
   if (!BaseSyncConnected) {
-    bool BS_1 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncTarget", &BS_trgt,  BASESYNC_EXPORT_TGT_VER, sizeof(BaseSyncExportTgtStruct), voh);
-    bool BS_2 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncMode", &BS_mode, BASESYNC_EXPORT_MODE_VER, sizeof(BaseSyncExportModeStruct), voh);
-    bool BS_3 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncSolution", &BS_sol, BASESYNC_EXPORT_SOL_VER, sizeof(BaseSyncExportSolStruct), voh);
-    bool BS_4 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncDeorbit", &BS_deo, BASESYNC_EXPORT_DEO_VER, sizeof(BaseSyncExportDeorbitStruct), voh);
-    bool BS_5 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncBurn", &BS_burn, BASESYNC_EXPORT_BURN_VER, sizeof(BaseSyncExportBurnStruct), voh);
+    bool BS_1 = false;
+    bool BS_2 = false;
+    bool BS_3 = false;
+    bool BS_4 = false;
+    bool BS_5 = false;
+    if (mm_good) {
+      BS_1 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncTarget", &BS_trgt, BASESYNC_EXPORT_TGT_VER, sizeof(BaseSyncExportTgtStruct), voh);
+      BS_2 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncMode", &BS_mode, BASESYNC_EXPORT_MODE_VER, sizeof(BaseSyncExportModeStruct), voh);
+      BS_3 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncSolution", &BS_sol, BASESYNC_EXPORT_SOL_VER, sizeof(BaseSyncExportSolStruct), voh);
+      BS_4 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncDeorbit", &BS_deo, BASESYNC_EXPORT_DEO_VER, sizeof(BaseSyncExportDeorbitStruct), voh);
+      BS_5 = mma.GetMMStruct("BaseSyncMFD", "BaseSyncBurn", &BS_burn, BASESYNC_EXPORT_BURN_VER, sizeof(BaseSyncExportBurnStruct), voh);
+    }
     if (BS_1 && BS_2 && BS_3 && BS_4 && BS_5) BaseSyncConnected = true;
   }
   if (!BaseSyncConnected) return;

@@ -1206,12 +1206,20 @@ void GlideslopeMFD::Update (HDC hDC) {
           G->maxMod =(G->diagOn)? 5: 4;
           break;
         } else {
-          if (!G->BaseSyncConnected) {
+          if (!G->mm_good) {
+            strcpy(buf, "To use deorbit mode, install");
+            TextOut(hDC, 5, line(l++), buf, strlen(buf));
+            strcpy(buf, "ModuleMessagingExt 2.0+ and");
+            TextOut(hDC, 5, line(l++), buf, strlen(buf));
+            strcpy(buf, "BaseSyncMFD 3.2+.");
+            TextOut(hDC, 5, line(l++), buf, strlen(buf));
+            l++;
+          } else if (!G->BaseSyncConnected) {
             strcpy(buf,"BaseSync: Disconnected");
             TextOut(hDC,5,line(l),buf,strlen(buf));
             l++; l++;
             SetTextColor( hDC, RED );
-            strcpy(buf,"Action: Open BaseSync MFD 3.1+");
+            strcpy(buf,"Action: Open BaseSyncMFD 3.2+");
             TextOut(hDC,5,line(l),buf,strlen(buf));
             l++;
           } else if (G->BS_trgt->lat != G->base.lat || G->BS_trgt->lon != G->base.lon) {
